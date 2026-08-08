@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study & Preparation Portal</title>
+    <!-- Google Fonts for Modern UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+<style>
+    :root {
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --bg: #0f172a;
+        --text: #ffffff;
+        --text-light: #cbd5e1;
+        --accent: #10b981;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* ===================================================
+       1. BACKGROUND VIDEO & OVERLAY
+       =================================================== */
+    #bg-video {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -2;
+        object-fit: cover;
+        pointer-events: none;
+    }
+
+    body {
+        color: var(--text);
+        line-height: 1.6;
+        padding-bottom: 50px;
+        background: transparent;
+        position: relative;
+    }
+
+    /* Slight Overlay for better text readability */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.35); 
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    header {
+        color: white;
+        text-align: center;
+        padding: 3rem 1rem;
+        min-height: 250px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    @media (max-width: 600px) {
+        header h1 {
+            font-size: 1.8rem;
+        }
+        header {
+            padding: 2rem 0.5rem;
+            min-height: 200px;
+        }
+    }
+
+    header h1 {
+        font-size: 6rem;
+        margin-bottom: 8px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    /* ===================================================
+       2. GLASSMORPHISM / JELLEY TRANSPARENT CARDS
+       =================================================== */
+    .card, .feature-card {
+        background: rgba(16, 16, 16, 0.02); /* Dynamic Transparency */
+        backdrop-filter: blur(2px) saturate(100%); /* Blur Behind Box */
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.25); /* Glossy Edge */
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Jelly Shadow */
+        transition: all 0.3s ease-in-out;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .card h2 {
+        font-size: 1.4rem;
+        color: #818cf8;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Class Selector Form */
+    .select-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    select, button {
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    select {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    select option {
+        background-color: #1e293b;
+        color: #ffffff;
+    }
+
+    button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s, transform 0.2s;
+        white-space: nowrap;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    button:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    /* Resource Section Visibility */
+    #resourceSection {
+        display: none;
+    }
+
+    /* Content Layout */
+    .grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Self Assessment & Feedback */
+    .rating-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .rating-options {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .rating-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--text);
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .rating-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* Mock Interview Section */
+    .interview-question {
+        background: rgba(99, 102, 241, 0.2);
+        padding: 15px;
+        border-left: 4px solid var(--primary);
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        margin-bottom: 10px;
+        resize: vertical;
+    }
+
+    textarea::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Roadmap List */
+    .roadmap-list {
+        list-style: none;
+    }
+
+    .roadmap-list li {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 15px;
+    }
+
+    .roadmap-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: var(--accent);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    /* Mobile Screens */
+    @media (max-width: 600px) {
+        header h1 { font-size: 1.6rem; }
+        .select-group { flex-direction: column; }
+        select, button { width: 100%; min-width: 100%; }
+    }
+
+    /* Header Specific Styles */
+    .main-header {
+        background: transparent;
+        width: 100%;
+        min-height: 300px;
+        position: relative;
+        color: #ffffff;
+    }
+
+    .header-overlay {
+        background-color: transparent;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .header-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        position: absolute;
+        left: 20px;
+        z-index: 2;
+    }
+
+    .header-left a {
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        transition: color 0.3s ease;
+    }
+
+    .header-left a:hover {
+        color: #ffca28;
+    }
+
+    .header-content {
+        text-align: center;
+        width: 100%;
+    }
+
+    .header-content h1 {
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        line-height: 1.2;
+    }
+
+    .header-content p {
+        font-size: 1.2rem;
+        margin: 0;
+        opacity: 0.95;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    @media (max-width: 768px) {
+        .header-overlay {
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .header-left {
+            position: static;
+            align-items: center;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .header-content h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-content p {
+            font-size: 1rem;
+        }
+    }
+
+    /* Features Section */
+    .features-section {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .section-title {
+        text-align: center;
+        color: #ffffff;
+        font-size: 40px;
+        margin-bottom: 30px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+
+    .icon-box {
+        font-size: 38px;
+        margin-bottom: 15px;
+    }
+
+    .feature-card h3 {
+        color: #a5b4fc;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        color: #e2e8f0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+</style>
+</head>
+<body>
+
+    <!-- 🎥 BACKGROUND VIDEO TAG -->
+    <video autoplay loop muted playsinline id="bg-video">
+      <source src="70216-533814725_tiny.mp4" type="video/mp4" />
+      Aapka browser video tag support nahi karta.
+    </video>
+
+    <!-- Header Section -->
+    <header class="main-header">
+      <div class="header-overlay">
+        <nav class="header-left">
+          <a href="#">Home</a>
+          <a href="#">Courses</a>
+          <a href="#">Resources</a>
+          <a href="#">My Profile</a>
+        </nav>
+
+        <div class="header-content">
+          <h1 style="font-size: 60px; font-style:normal;">Welcome to LearnX</h1>
+          <p>Ready to level up your learning journey...</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <h2 class="section-title">✨ keys feature's of STUDYOS</h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon-box">📹🎙️</div>
+          <h3>Smart AI Mock Test</h3>
+          <p>Lecture ya video dekhne ke baad instant mock test dein. Video camera aur voice detection dwara smart proctoring system.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">📊🎯</div>
+          <h3>Attitude & Performance Analysis</h3>
+          <p>Test complete karne ke baad aapke response, speed, aur attitude ke basis par bataya jayega ki aap kidhar stand karte hain.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">📝📄</div>
+          <h3>Handwritten & Smart Notes</h3>
+          <p>Usi lecture ke handwritten ya custom style notes ek click me download ya view karein.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">💡🧠</div>
+          <h3>Similar Practice Questions</h3>
+          <p>Jo topic aapne padha hai, us par grip mazboot karne ke liye similar conceptual questions practice karein.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">🌐📱</div>
+          <h3>Get a Combination of Multiple Apps</h3>
+          <p>Har vo app ya APK jo study se related hai uska environment yahi milega, jaise Google Sheets, branch/class news, upcoming opportunities, job platforms aur bahut kuch.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">💬👥</div>
+          <h3>Discussion Community</h3>
+          <p>Apni class ya branch ke students se baat kar paoge, ek dusre ke doubts solve kar paoge aur apne hisaab se study meetings bhi schedule kar paoge.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">🧑‍🏫✨</div>
+          <h3>AI Mentor & AI Teacher</h3>
+          <p>AI Mentor tumhari progress analyze karega, daily goals banayega, mistakes batayega aur interview aur placement ke liye guide karega.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-box">📚📄</div>
+          <h3>Resources & Study Material</h3>
+          <p>Advanced study material, free books, previous year papers, topper notes, topper sheets aur bahut saare resources ek hi jagah free me milenge.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Step 1: Class Selection -->
+        <div class="card">
+            <h2>📚 Step 1: Apni Class / Course Select Karein</h2>
+            <div class="select-group">
+                <select id="classSelect">
+                    <option value="" disabled selected>-- Apna Class / Course Choose Karein --</option>
+                    <optgroup label="🏫 School Education">
+                        <option value="class-6-8">Class 6th - 8th (Foundation)</option>
+                        <option value="class-9">Class 9th (Science & Maths)</option>
+                        <option value="class-10">Class 10th (Board Prep)</option>
+                        <option value="class-11-sci">Class 11th (Science - PCM/PCB)</option>
+                        <option value="class-11-comm">Class 11th (Commerce)</option>
+                        <option value="class-11-arts">Class 11th (Arts / Humanities)</option>
+                        <option value="class-12-sci">Class 12th (Science Board & Entrance)</option>
+                        <option value="class-12-comm">Class 12th (Commerce Board)</option>
+                        <option value="class-12-arts">Class 12th (Arts Board)</option>
+                    </optgroup>
+                    <optgroup label="💻 Engineering & Technology">
+                        <option value="btech-cs-it">B.Tech / B.E. (CSE / IT)</option>
+                        <option value="btech-core">B.Tech / B.E. (Mechanical / Civil / ECE / EE)</option>
+                        <option value="bca">BCA (Bachelor of Computer Applications)</option>
+                        <option value="mca">MCA (Master of Computer Applications)</option>
+                        <option value="polytechnic">Polytechnic / Diploma in Engineering</option>
+                        <option value="mtech">M.Tech / M.E.</option>
+                    </optgroup>
+                    <optgroup label="🩺 Medical & Healthcare">
+                        <option value="mbbs">MBBS (Bachelor of Medicine)</option>
+                        <option value="bams-bhms">BAMS / BHMS / BUMS (Ayush)</option>
+                        <option value="bds">BDS (Dental)</option>
+                        <option value="bpharma">B.Pharm (Bachelor of Pharmacy)</option>
+                        <option value="dpharma">D.Pharm (Diploma in Pharmacy)</option>
+                        <option value="nursing">B.Sc Nursing / GNM</option>
+                        <option value="paramedical">Paramedical Courses (DMLT/BMLT)</option>
+                    </optgroup>
+                    <optgroup label="🏆 Competitive & Entrance Exams">
+                        <option value="jee">JEE Main & Advanced (Engineering Entrance)</option>
+                        <option value="neet">NEET UG (Medical Entrance)</option>
+                        <option value="upsc">UPSC CSE (Civil Services / IAS / IPS)</option>
+                        <option value="ssc">SSC (CGL / CHSL / GD / MTS)</option>
+                        <option value="banking">Banking (IBPS / SBI PO & Clerk)</option>
+                        <option value="railway">Railway Exams (RRB NTPC / Group D)</option>
+                        <option value="defence">Defence (NDA / CDS / AFCAT / Agniveer)</option>
+                        <option value="state-psc">State PSC Exams (UPPSC, BPSC, MPPSC, etc.)</option>
+                        <option value="cuet">CUET (UG & PG Entrance)</option>
+                        <option value="gate">GATE / ESE</option>
+                        <option value="cat-mat">CAT / MAT (MBA Entrance)</option>
+                    </optgroup>
+                    <optgroup label="💼 Business, Commerce & Law">
+                        <option value="bcom">B.Com / M.Com</option>
+                        <option value="bba-mba">BBA / MBA</option>
+                        <option value="ca">CA (Chartered Accountant - Foundation/Inter/Final)</option>
+                        <option value="cs">CS (Company Secretary)</option>
+                        <option value="llb">LLB / BA LLB (Law Studies)</option>
+                        <option value="clat">CLAT (Law Entrance Exam)</option>
+                    </optgroup>
+                    <optgroup label="🎓 Graduation & Arts Degrees">
+                        <option value="bsc">B.Sc (Physics/Chemistry/Maths/Bio)</option>
+                        <option value="ba">BA (History, Polity, English, etc.)</option>
+                        <option value="bed">B.Ed / D.El.Ed (Teaching)</option>
+                        <option value="iti">ITI Courses</option>
+                    </optgroup>
+                </select>
+                <button onclick="loadResources()">Resources Load Karein</button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Section -->
+        <div id="resourceSection">
+            <div class="card">
+                <h2>🎯 Target Study Plan & Strategy</h2>
+                <p style="margin-bottom: 15px; color: var(--text-light);">Is class me achhe marks score karne ke liye ye steps follow karein:</p>
+                <ul class="roadmap-list" id="roadmapList"></ul>
+            </div>
+
+            <div class="grid-layout">
+                <div class="card">
+                    <h2>📖 Theory & Conceptual Notes</h2>
+                    <div id="theoryContent"></div>
+                </div>
+
+                <div class="card">
+                    <h2>🎥 Video Lecture</h2>
+                    <div class="video-container">
+                        <iframe id="videoPlayer" src="" allowfullscreen></iframe>
+                    </div>
+                    
+                    <div class="rating-box">
+                        <strong>Is video se aapne kitna seekha?</strong>
+                        <div class="rating-options">
+                            <button class="rating-btn" onclick="saveFeedback('25%')">25% (Kuch samajh nahi aaya)</button>
+                            <button class="rating-btn" onclick="saveFeedback('50%')">50% (Aadha samajh aaya)</button>
+                            <button class="rating-btn" onclick="saveFeedback('75%')">75% (Kafi hadd tak clear h)</button>
+                            <button class="rating-btn" onclick="saveFeedback('100%')">100% (Pura samajh aa gaya)</button>
+                        </div>
+                        <p id="feedbackMsg" style="margin-top: 10px; color: var(--accent); font-weight: 600;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🗣️ Instant Mock Interview & Self-Assessment</h2>
+                <p style="margin-bottom: 15px; color: var(--text-light);">Video dekhne ke baad niche diye gaye sawal ka jawab bol kar ya likh kar de, aur apna confidence test karein.</p>
+                
+                <div class="interview-question">
+                    <strong>Question:</strong> <span id="mockQuestion">Loading question...</span>
+                </div>
+
+                <textarea id="userAnswer" placeholder="Apna answer yahan type karein ya mind me recall karein..."></textarea>
+                <button onclick="submitAnswer()">Answer Submit & Review</button>
+
+                <div id="answerFeedback" style="margin-top: 15px; display: none; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+                    <strong>Model Answer / Key Points:</strong>
+                    <p id="modelAnswerText" style="margin-top: 5px; color: var(--text);"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const classData = {
+            "9th": {
+                roadmap: [
+                    "Basic Concepts aur Ncert ki reading daily 1 ghanta karein.",
+                    "Har chapter ke baad key definitions ki short list banayein.",
+                    "Week me 1 din revision aur doubt clearing ke liye rakhein."
+                ],
+                theory: `
+                    <h3>Chapter: Motion & Laws of Motion</h3>
+                    <p><b>Distance:</b> Kisi object dwara cover kiya gaya total path length.</p>
+                    <p><b>Displacement:</b> Initial aur final position ke beech ka shortest distance.</p>
+                    <p><b>Newton's First Law:</b> Koi bhi body rest ya uniform motion me rahegi jab tak uspar koi external force na lagaya jaye (Inertia).</p>
+                `,
+                videoUrl: "https://www.youtube.com/embed/tgbNymZ7vqY",
+                question: "Inertia kya hota hai? Newton ke First Law ke hisab se explain karein.",
+                modelAnswer: "Inertia kisi body ki wo property hai jiski wajah se wo apni state of rest ya uniform motion me badlav ka virodh (resist) karti hai."
+            },
+            "10th": {
+                roadmap: [
+                    "Board Exam orientation ke hisab se NCERT examples zaroori hain.",
+                    "Previous Year Questions (PYQs) ko weekly basis par solve karein.",
+                    "Formula sheet banayein aur daily 10 minute revise karein."
+                ],
+                theory: `
+                    <h3>Chapter: Light - Reflection and Refraction</h3>
+                    <p><b>Reflection:</b> Jab light ray kisi polished surface se takra kar wapas ushi medium me laut aati hai.</p>
+                    <p><b>Snell's Law:</b> sin(i) / sin(r) = constant (Refractive Index).</p>
+                    <p><b>Mirror Formula:</b> 1/f = 1/v + 1/u</p>
+                `,
+                videoUrl: "https://www.youtube.com/embed/tgbNymZ7vqY",
+                question: "Snell's Law of Refraction ko explain karein aur iska formula bataayein.",
+                modelAnswer: "Snell's law kehta hai ki given pair of media aur wavelength ke liye ratio of sine of angle of incidence to sine of angle of refraction constant hota hai (sin i / sin r = constant)."
+            },
+            "11th": {
+                roadmap: [
+                    "Concept depth ko samjhein, keval rote learning se kaam nahi chalega.",
+                    "Derivations aur Numerical problems ki practice karein.",
+                    "Reference books (Jaise HC Verma / Pradeep) follow karein."
+                ],
+                theory: `
+                    <h3>Chapter: Thermodynamics & Kinematics</h3>
+                    <p><b>First Law of Thermodynamics:</b> ΔQ = ΔU + W (Energy conservation principle).</p>
+                    <p><b>Work Done in Isothermal Process:</b> W = 2.303 nRT log(V2/V1)</p>
+                `,
+                videoUrl: "https://www.youtube.com/embed/tgbNymZ7vqY",
+                question: "First Law of Thermodynamics kya hai? Iska mathematical expression likhein.",
+                modelAnswer: "First Law Energy Conservation par aadharit hai. Formula hai: ΔQ = ΔU + W, jahan ΔQ heat supplied hai, ΔU internal energy change hai aur W work done hai."
+            },
+            "12th": {
+                roadmap: [
+                    "Board exams + Entrance test dono ke syllabus me balance banayein.",
+                    "Time management ke liye Mock Tests aur Sample Papers solve karein.",
+                    "Strong Topics par speed badhayein aur Weak topics ko roz time dein."
+                ],
+                theory: `
+                    <h3>Chapter: Electrostatics & Optics</h3>
+                    <p><b>Coulomb's Law:</b> F = k · (q1 · q2) / r²</p>
+                    <p><b>Electric Field:</b> Force experienced per unit positive charge (E = F/q).</p>
+                `,
+                videoUrl: "https://www.youtube.com/embed/tgbNymZ7vqY",
+                question: "Coulomb's Law kya describe karta hai aur force kin factors par depend karti hai?",
+                modelAnswer: "Coulomb's Law do point charges ke beech lagne wale electrostatic force ko bataata hai. Force charges ke product ke directly proportional aur unke beech ke distance ke square ke inversely proportional hota hai."
+            }
+        };
+
+        function loadResources() {
+            const selectedClass = document.getElementById("classSelect").value;
+            if(!selectedClass) {
+                alert("Kripya pehle apni class select karein!");
+                return;
+            }
+
+            const data = classData[selectedClass] || classData["9th"];
+
+            const roadmapList = document.getElementById("roadmapList");
+            roadmapList.innerHTML = "";
+            data.roadmap.forEach(item => {
+                const li = document.createElement("li");
+                li.innerText = item;
+                roadmapList.appendChild(li);
+            });
+
+            document.getElementById("theoryContent").innerHTML = data.theory;
+            document.getElementById("videoPlayer").src = data.videoUrl;
+            document.getElementById("mockQuestion").innerText = data.question;
+            document.getElementById("modelAnswerText").innerText = data.modelAnswer;
+
+            document.getElementById("feedbackMsg").innerText = "";
+            document.getElementById("userAnswer").value = "";
+            document.getElementById("answerFeedback").style.display = "none";
+            document.getElementById("resourceSection").style.display = "block";
+        }
+
+        function saveFeedback(score) {
+            const msg = document.getElementById("feedbackMsg");
+            msg.innerText = `Aapne is video ko "${score}" comprehension rating di hai. According to this, aapka mock interview ready hai!`;
+        }
+
+        function submitAnswer() {
+            const ans = document.getElementById("userAnswer").value;
+            if(!ans.trim()) {
+                alert("Kripya pehle kuch answer likhein ya soch kar enter karein.");
+                return;
+            }
+            document.getElementById("answerFeedback").style.display = "block";
+        }
+    </script>
+</body>
+</html>
